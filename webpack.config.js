@@ -3,10 +3,37 @@ const HTMLWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const {BundleAnalyzerPlugin} = require('webpack-bundle-analyzer');
 
 const isDev = process.env.NODE_ENV === 'development';
 const isProd = !isDev;
 // console.log('isDev', isDev);
+
+const plugins = () => {
+
+    const base = [
+        new HTMLWebpackPlugin({
+            template: './index.html',
+            minify: {
+                collapseWhitespace: !isProd
+            }
+        }),
+        new CleanWebpackPlugin(),
+        new CopyWebpackPlugin({
+            patterns: [
+                { from: path.resolve(__dirname, 'src/assets/33.ico'), to: path.resolve(__dirname, 'dist') },
+            ]
+        }),
+        new MiniCssExtractPlugin({
+            filename: "[name].[hash].css"
+        })
+
+    ]
+
+    base.push(new BundleAnalyzerPlugin()); 
+
+    return base;
+}
 
 module.exports = {
     context: path.resolve(__dirname, 'src'),
@@ -36,23 +63,7 @@ module.exports = {
         port: 4200,
         hot: isDev
     },
-    plugins: [
-        new HTMLWebpackPlugin({
-            template: './index.html',
-            minify: {
-                collapseWhitespace: !isProd
-            }
-        }),
-        new CleanWebpackPlugin(),
-        new CopyWebpackPlugin({
-            patterns: [
-                { from: path.resolve(__dirname, 'src/assets/33.ico'), to: path.resolve(__dirname, 'dist') },
-            ]
-        }),
-        new MiniCssExtractPlugin({
-            filename: "[name].[hash].css"
-        })
-    ],
+    plugins: plugins(),
 
     module: {
         rules: [
